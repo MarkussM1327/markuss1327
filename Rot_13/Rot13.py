@@ -9,7 +9,7 @@ def main():
     print("Izvēlieties valodu (ievadiet ciparu) | Choose language (enter a number):")
     print("1. Latviešu")
     print("2. English")
-    language_choice = input("Jūsu izvēle | Your choice: ")
+    language_choice = input("Jūsu izvēle | Your choice: ")#ļauj lietotājam izvēlēties valodu
 
     if language_choice == "1":
         lang = "lv"
@@ -28,7 +28,7 @@ def main():
         print("1. Encrypt")
         print("2. Decrypt")
 
-    action_choice = input("Jūsu izvēle | Your choice: ")
+    action_choice = input("Jūsu izvēle | Your choice: ")#ļauj izvēlēties darbību
 
     if action_choice not in ["1", "2"]:
         if lang == "lv":
