@@ -14,7 +14,6 @@
 import os
 os.system('cls')
 print("\n")
-import math
 a=int(input('koeficents a '))
 b=int(input('koeficents b '))
 c=int(input('koeficents c '))
