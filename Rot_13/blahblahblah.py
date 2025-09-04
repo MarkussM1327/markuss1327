@@ -14,7 +14,6 @@ month_dict={
     'novembris':11,
     'decembris':12
 }
-
 month_value_dict={
     'janvāris':0,
     'februāris':31,
@@ -29,20 +28,13 @@ month_value_dict={
     'novembris':304,
     'decembris':335
 }
-
 name=input('Tavs vārds - ')
-
 birth_year=int(input('Tavs dzimšanas gads - '))
-
 birth_month=input('Tavs dzimšanas mēnesis - ').lower()
-
 birth_date=int(input('Tavs dzimšanas datums - '))
-
 month_value=month_dict[birth_month]
-
 day_value_of_user=month_value_dict[birth_month]+birth_date
 print_value=-247+day_value_of_user
-
 if print_value>1:
     print(f'Čau {name}, tava dzimšanas diena būs pēc {print_value} dienām')
 elif print_value==1:
@@ -52,4 +44,3 @@ elif print_value==0:
 elif print_value<0:
     new_print_value=365+print_value
     print(f'Čau {name}, tava dzimšanas diena būs pēc {new_print_value} dienām')
-
