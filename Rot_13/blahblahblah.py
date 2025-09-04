@@ -41,12 +41,15 @@ birth_date=int(input('Tavs dzimšanas datums - '))
 month_value=month_dict[birth_month]
 
 day_value_of_user=month_value_dict[birth_month]+birth_date
-print_value=247-day_value_of_user
+print_value=-247+day_value_of_user
 
-if print_value>0:
-    print(f'Čau {name}, tava dzimšanas diena būs pēc {print_value} dienām/dienas')
+if print_value>1:
+    print(f'Čau {name}, tava dzimšanas diena būs pēc {print_value} dienām')
+elif print_value==1:
+    print(f'Čau {name}, tava dzimšanas diena būs pēc {print_value} dienas')
 elif print_value==0:
     print(f'Čau {name}, tava dzimšanas diena ir šodien')
 elif print_value<0:
     new_print_value=365+print_value
-    print(f'Čau {name}, tava dzimšanas diena būs pēc {new_print_value} dienām/dienas')
+    print(f'Čau {name}, tava dzimšanas diena būs pēc {new_print_value} dienām')
+
