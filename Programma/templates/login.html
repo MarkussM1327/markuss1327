@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+</head>
+<body>
+    <h1>Login to your account</h1>
+    {% if error %}
+        <h3 style="color: red;">{{ error }}</h3>
+    {% endif %}
+    <form action="{{ url_for('login') }}" method="POST">
+        <label for="username">Username</label><br>
+        <input type="text" name="username" placeholder="Spongebob123" maxlength="16"><br><br>
+        <label for="password">Password</label><br>
+        <input type="password" name="password" placeholder="mybffpatrick" maxlength="12"><br><br>
+        <button type="submit">Login</button> <a href="{{ url_for('sign_up') }}" ><button type="button">Sign up</button></a>
+    </form>
+</body>
+</html>
