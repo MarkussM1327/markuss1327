@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="static/index.css">
+    <title>Test</title>
+</head>
+<body>
+    {% if session.get("game_state")=="start" %}
+        <div>
+            <video width="50%" height="50%" autoplay muted>
+                <source src="static/elden.mp4#t=0,{{ t }}" type="video/mp4">
+            </video>
+        </div>
+    {% elif session.get("game_state")==None %}
+        <div>
+            <video width="50%" height="50%" autoplay muted>
+                <source src="static/default.mp4#t=0,1" type="video/mp4">
+            </video>
+        </div>
+    {% endif %}
+    <form method="POST">
+        <button type="submit" name="diff" value="hard">10 sec</button>
+        <button type="submit" name="diff" value="med">15 sec</button>
+        <button type="submit" name="diff" value="ez">20 sec</button>
+    </form>
+    <br>
+    <a href="{{ url_for('login') }}"><button type="button">Registration</button></a>
+</body>
+</html>
