@@ -16,6 +16,15 @@ def user_exists(username):
         else:
             if i==len(users)-1:
                 return False
+def password_matches(password):
+    users=data("users.json")
+    for i in range(len(users)):
+        dict=users[i]
+        if dict.get("password")==password:
+            return True
+        else:
+            if i==len(users)-1:
+                return False
 app.secret_key="test"
 @app.route("/",methods=["GET","POST"])
 def index():
@@ -33,28 +42,37 @@ def index():
     time=session.get("time")
     if time is None:
         time=15
-    return render_template("index.html",t=time)
+    return render_template("index.html",data=data("users.json"))
 @app.route("/login",methods=["GET","POST"])
 def login():
-    error=False
+    if request.method=="POST":
+        if user_exists(request.form.get("username")):
+            if password_matches(request.form.get("password")):
+                session["account"]=request.form.get("username")
+                session.pop("error",None)
+                return redirect(url_for("index"))
+            else:
+                session["error"]="Wrong password"
+        else:
+            session["error"]="You're logging in an account that doesn't exist"
     return render_template("login.html")
 @app.route("/sign_up",methods=["GET","POST"])
 def sign_up():
-    error=False
     if request.method=="POST":
         user=request.form.get("username")
         if not user_exists(user):
             new_data={
                 "username":request.form.get("username"),
-                "password":request.form.get("password")
+                "password":request.form.get("password"),
+                "time": 0
             }
             all_data=data("users.json")
             all_data.append(new_data)
             with open("users.json",'w',encoding="utf-8") as f:
                 json.dump(all_data,f,indent=4,ensure_ascii=False)
-                return redirect(url_for("index"))
+            return redirect(url_for("index"))
         else:
-            error="This username is taken"
-    return render_template("sign_up.html",error=error)
+            session["error"]="This username is taken"
+    return render_template("sign_up.html")
 if __name__=="__main__":
     app.run(debug=True)
