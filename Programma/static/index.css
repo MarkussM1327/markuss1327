@@ -1,3 +1,10 @@
-#video_player{
-    position: relative;
+#username_display{
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    z-index: 10;
+    background: rgba(0, 0, 0, 0.4);
+    color: #fff;
+    padding: 6px 10px;
+    border-radius: 6px;
 }
