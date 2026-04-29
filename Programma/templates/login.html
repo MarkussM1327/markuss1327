@@ -7,15 +7,17 @@
 </head>
 <body>
     <h1>Login to your account</h1>
-    {% if error %}
-        <h3 style="color: red;">{{ error }}</h3>
+    {% if session.get("error")!=None %}
+        <h3 style="color: red;">{{ session["error"] }}</h3>
     {% endif %}
     <form action="{{ url_for('login') }}" method="POST">
         <label for="username">Username</label><br>
-        <input type="text" name="username" placeholder="Spongebob123" maxlength="16"><br><br>
+        <input type="text" name="username" maxlength="12" required><br><br>
         <label for="password">Password</label><br>
-        <input type="password" name="password" placeholder="mybffpatrick" maxlength="12"><br><br>
+        <input type="password" name="password" maxlength="8" required><br><br>
         <button type="submit">Login</button> <a href="{{ url_for('sign_up') }}" ><button type="button">Sign up</button></a>
+        <br>
+        <a href="{{ url_for('index') }}"><button type="button">Back Home</button></a>
     </form>
 </body>
 </html>
