@@ -1,5 +1,12 @@
 from flask import Flask, render_template, redirect, url_for, request,session
-import os, json
+import os, json, time,random
+trailers=[]
+folder_path = 'static/trailers'
+
+for filename in os.listdir(folder_path):
+    if os.path.isfile(os.path.join(folder_path, filename)):
+        trailers.append(filename)
+
 app=Flask(__name__)
 def data(file_name):
     if not os.path.exists(file_name):
@@ -42,7 +49,7 @@ def index():
     time=session.get("time")
     if time is None:
         time=15
-    return render_template("index.html",data=data("users.json"))
+    return render_template("index.html",data=data("users.json"),trailer=f"static/trailers/{random.choice(trailers)}#t=0,{session['time']}")
 @app.route("/login",methods=["GET","POST"])
 def login():
     if request.method=="POST":
