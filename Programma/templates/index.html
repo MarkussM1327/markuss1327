@@ -10,7 +10,7 @@
     {% if session.get("game_state")=="start" %}
         <div>
             <video width="50%" height="50%" autoplay muted>
-                <source src="static/elden.mp4#t=0,{{ session['time'] }}" type="video/mp4">
+                <source src="{{ trailer }}" type="video/mp4">
             </video>
             {% if session.get("account")!=None %}
                 <span id="username_display">{{ session["account"] }}</span>
@@ -34,7 +34,7 @@
         <button type="submit" name="diff" value="hard">10 sec</button>
         <button type="submit" name="diff" value="med">15 sec</button>
         <button type="submit" name="diff" value="ez">20 sec</button><br><br>
-        <input type="text" placeholder="Enter your guess here"> <button>Submit Guess</button>
+        <input type="text" placeholder="Enter your guess here" name="guess"> <button>Submit Guess</button>
     </form>
     <br>
     <a href="{{ url_for('login') }}"><button type="button">Registration</button></a>
