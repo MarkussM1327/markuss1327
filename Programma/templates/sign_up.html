@@ -11,9 +11,9 @@
         <h3 style="color: red;">{{ error }}</h3>
     {% endif %}
     <form action="{{ url_for('sign_up') }}" method="POST">
-        <label for="username">Create a username</label><br>
+        <label for="username">Create a username (Max of 12 charachters)</label><br>
         <input type="text" name="username" minlength="1" maxlength="12" required><br><br>
-        <label for="password">Create a password</label><br>
+        <label for="password">Create a password (8 charachters)</label><br>
         <input type="password" name="password" minlength="8" maxlength="8" required><br><br>
         <button type="submit">Create Account</button> <a href="{{ url_for('login') }}"><button type="button">Back to Login</button></a>
     </form>
