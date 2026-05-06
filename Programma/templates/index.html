@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="static/index.css">
-    <title>Test</title>
+    <title>TrailGames</title>
 </head>
 <body>
     {% if session.get("game_state")=="start" %}
@@ -18,7 +18,7 @@
                 <span id="username_display">Guest</span>
             {% endif %}
         </div>
-    {% elif session.get("game_state")==None %}
+    {% else %}
         <div>
             <video width="50%" height="50%" autoplay muted>
                 <source src="static/test.mp4#t=0,1" type="video/mp4">
@@ -30,28 +30,48 @@
             {% endif %}
         </div>
     {% endif %}
-    <form method="POST">
-        <button type="submit" name="diff" value="hard">10 sec</button>
-        <button type="submit" name="diff" value="med">15 sec</button>
-        <button type="submit" name="diff" value="ez">20 sec</button><br><br>
-        <input type="text" placeholder="Enter your guess here" name="guess"> <button>Submit Guess</button>
+    <form action="{{ url_for('index') }}" method="POST">
+        <button type="submit" name="btn" value="hard">10 sec</button>
+        <button type="submit" name="btn" value="med">15 sec</button>
+        <button type="submit" name="btn" value="ez">20 sec</button><br><br>
     </form>
+    <form action="{{ url_for('index') }}" method="POST">
+        <input type="text" placeholder="Enter your guess here" name="guess" required> <button type="submit" name="btn" value="guess">Submit Guess</button>
+    </form>
+    {% if session.get("is_correct") %}
+        <dialog open>
+            <h3 style="color: green;">You guessed it right in {{ session["guess_time"] }}</h3>
+            <form hx-post="{{ url_for('index') }}" method="POST">
+                <button type="submit" name="btn" value="close">Close</button>
+            </form>
+        </dialog>
+    {% elif session.get("wrong_guess") %}
+        <dialog open>
+            <h3 style="color: red;">Wrong guess</h3>
+            <form hx-post="{{ url_for('index') }}" method="POST">
+                <button type="submit" name="btn" value="close">Close</button>
+            </form>
+        </dialog>
+    {% endif %}
     <br>
     <a href="{{ url_for('login') }}"><button type="button">Registration</button></a>
-    <h1>Leaderboards</h1>
-    <div>
+    <div id="leaderboard">
+        <h1>Leaderboards</h1>
         <table border="1">
             <tr>
+                <th>Pos.</th>
                 <th>Username</th>
                 <th>Time</th>
             </tr>
             {% for info in data %}
             <tr>
+                <td>{{ loop.index }}</td>
                 <td>{{ info.username }}</td>
-                <td>{{ info.time }}</td>
+                <td>{{ "%02d"|format(((info.time/1000)/60)|int)|string + ":" + "%02d"|format((info.time/1000)|int)|string + ":" + "%03d"|format(((info.time|string)[-3:])|int)|string }}</td>
             </tr>
             {% endfor %}
         </table>
     </div>
+    {{ session }}
 </body>
 </html>
