@@ -1,12 +1,10 @@
 from flask import Flask, render_template, redirect, url_for, request,session
-import os, json, time,random
+import os, json,random,time,math
 trailers=[]
 folder_path = 'static/trailers'
-
 for filename in os.listdir(folder_path):
     if os.path.isfile(os.path.join(folder_path, filename)):
         trailers.append(filename)
-
 app=Flask(__name__)
 def data(file_name):
     if not os.path.exists(file_name):
@@ -23,6 +21,15 @@ def user_exists(username):
         else:
             if i==len(users)-1:
                 return False
+def user_i(username):
+    users=data("users.json")
+    for i in range(len(users)):
+        dict=users[i]
+        if dict.get("username")==username:
+            return i
+        else:
+            if i==len(users)-1:
+                return None
 def password_matches(password):
     users=data("users.json")
     for i in range(len(users)):
@@ -35,27 +42,80 @@ def password_matches(password):
 app.secret_key="test"
 @app.route("/",methods=["GET","POST"])
 def index():
+    if session.get("account")==None:
+        session["account"]="guest"
     if request.method=="POST":
-        if request.form.get("diff")=="ez":
+        if request.form.get("btn")=="ez":
+            trailer=random.choice(trailers)
+            session["trailer"]=trailer.removesuffix(".mp4")
             session["game_state"]="start"
             session["time"]=20
-        elif request.form.get("diff")=="med":
+            session["start_time"]=time.time()
+        elif request.form.get("btn")=="med":
+            trailer=random.choice(trailers)
+            session["trailer"]=trailer.removesuffix(".mp4")
             session["game_state"]="start"
             session["time"]=15
-        else:
+            session["start_time"]=time.time()
+        elif request.form.get("btn")=="hard":
+            trailer=random.choice(trailers)
+            session["trailer"]=trailer.removesuffix(".mp4")
             session["game_state"]="start"
             session["time"]=10
+            session["start_time"]=time.time()
+        elif request.form.get("btn")=="guess":
+            session.pop("game_state",None)
+            session["users_guess"]=request.form.get("guess")
+            if session["users_guess"]==session["trailer"]:
+                session["is_correct"]=True
+                end=time.time()
+                t=end-session["start_time"]
+                if t>=60:
+                    while t>=60:
+                        m=math.floor(t/60)
+                        if len(str(m))==1:
+                            m=str("0"+str(m))
+                else:
+                    m="00"
+                s=math.floor(t)
+                if len(str(s))==1:
+                    s=str("0"+str(s))
+                ms=round(t*1000)
+                if len(str(ms))>3:
+                    ms=ms/10**len(str(ms))
+                    ms=round(ms*1000)
+                session["guess_time"]=f"{m}:{s}:{ms}" 
+                if session.get("account")!="guest":
+                    time_ms=int(m)*60+int(s)*1000+ms
+                    all_data=data("users.json")
+                    i=user_i(session["account"])
+                    if all_data[i]["time"]==0:
+                        all_data[i]["time"]=time_ms
+                        with open("users.json",'w',encoding="UTF-8") as f:
+                            json.dump(all_data,f,indent=4,ensure_ascii=False)
+                    else:
+                        if all_data[i]["time"]>time_ms:
+                            all_data[i]["time"]=time_ms
+                            with open("users.json",'w',encoding="UTF-8") as f:
+                                json.dump(all_data,f,indent=4,ensure_ascii=False)
+                else:
+                    session["wrong_guess"]=True
+        elif request.form.get("btn")=="close":
+            session.pop("guess_time",None)
+            session["is_correct"]=False
         return redirect(url_for("index"))
-    time=session.get("time")
-    if time is None:
-        time=15
-    return render_template("index.html",data=data("users.json"),trailer=f"static/trailers/{random.choice(trailers)}#t=0,{session['time']}")
+    t=session.get("time",15)
+    ordered_data=sorted(data("users.json"),key=lambda x: x["time"],reverse=False)
+    return render_template("index.html",data=ordered_data,
+                           trailer=f"static/trailers/{session.get("trailer")+".mp4"}#t=0,{t}")
 @app.route("/login",methods=["GET","POST"])
 def login():
     if request.method=="POST":
-        if user_exists(request.form.get("username")):
-            if password_matches(request.form.get("password")):
-                session["account"]=request.form.get("username")
+        user=request.form.get("username")
+        password=request.form.get("password")
+        if user_exists(user):
+            if password_matches(password):
+                session["account"]=user
                 session.pop("error",None)
                 return redirect(url_for("index"))
             else:
@@ -69,7 +129,7 @@ def sign_up():
         user=request.form.get("username")
         if not user_exists(user):
             new_data={
-                "username":request.form.get("username"),
+                "username":user,
                 "password":request.form.get("password"),
                 "time": 0
             }
@@ -77,6 +137,7 @@ def sign_up():
             all_data.append(new_data)
             with open("users.json",'w',encoding="utf-8") as f:
                 json.dump(all_data,f,indent=4,ensure_ascii=False)
+            session["account"]=user
             return redirect(url_for("index"))
         else:
             session["error"]="This username is taken"
