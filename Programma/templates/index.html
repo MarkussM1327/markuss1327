@@ -31,12 +31,19 @@
         </div>
     {% endif %}
     <form action="{{ url_for('index') }}" method="POST">
-        <button type="submit" name="btn" value="hard">10 sec</button>
-        <button type="submit" name="btn" value="med">15 sec</button>
-        <button type="submit" name="btn" value="ez">20 sec</button><br><br>
+        <button type="submit" name="btn" value="hard" {% if session.get("game_state")=="start" %}disabled{% endif %} >10 sec</button>
+        <button type="submit" name="btn" value="med" {% if session.get("game_state")=="start" %}disabled{% endif %}>15 sec</button>
+        <button type="submit" name="btn" value="ez" {% if session.get("game_state")=="start" %}disabled{% endif %}>20 sec</button>
+        <span><b>Guess {{ 1 }}/5</b></span><br><br>
     </form>
     <form action="{{ url_for('index') }}" method="POST">
-        <input type="text" placeholder="Enter your guess here" name="guess" required> <button type="submit" name="btn" value="guess">Submit Guess</button>
+        <input id="guess_box" type="text" list="suggestions" placeholder="Enter your guess here" name="guess" required> <button type="submit" name="btn" value="guess">Submit Guess</button>
+
+        <datalist id="suggestions">
+            {% for trailer in trailer_list %}
+            <option value="{{ trailer|replace('.mp4','') }}">
+            {% endfor %}
+        </datalist>
     </form>
     {% if session.get("is_correct") %}
         <dialog open>
