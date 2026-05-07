@@ -1,10 +1,10 @@
 from flask import Flask, render_template, redirect, url_for, request,session
 import os, json,random,time,math
-trailers=[]
+trailer_list=[]
 folder_path = 'static/trailers'
 for filename in os.listdir(folder_path):
     if os.path.isfile(os.path.join(folder_path, filename)):
-        trailers.append(filename)
+        trailer_list.append(filename)
 app=Flask(__name__)
 def data(file_name):
     if not os.path.exists(file_name):
@@ -39,34 +39,39 @@ def password_matches(password):
         else:
             if i==len(users)-1:
                 return False
-app.secret_key="test"
+app.secret_key="!!!DonQuixoteDeLaMancha!!!"
 @app.route("/",methods=["GET","POST"])
 def index():
+    session.pop("trailer",None)
+    if session.get("trailers")==None:
+        session["trailer"]=random.sample(trailer_list, k=5)
     if session.get("account")==None:
         session["account"]="guest"
     if request.method=="POST":
         if request.form.get("btn")=="ez":
-            trailer=random.choice(trailers)
-            session["trailer"]=trailer.removesuffix(".mp4")
+            trailers=random.sample(trailer_list,k=5)
+            session["guess_num"]=0
+            session["trailers"]=trailers
             session["game_state"]="start"
             session["time"]=20
             session["start_time"]=time.time()
         elif request.form.get("btn")=="med":
-            trailer=random.choice(trailers)
-            session["trailer"]=trailer.removesuffix(".mp4")
+            trailers=random.sample(trailer_list,k=5)
+            session["guess_num"]=0
+            session["trailers"]=trailers
             session["game_state"]="start"
             session["time"]=15
             session["start_time"]=time.time()
         elif request.form.get("btn")=="hard":
-            trailer=random.choice(trailers)
-            session["trailer"]=trailer.removesuffix(".mp4")
+            trailers=random.sample(trailer_list,k=5)
+            session["guess_num"]=0
+            session["trailers"]=trailers
             session["game_state"]="start"
             session["time"]=10
             session["start_time"]=time.time()
         elif request.form.get("btn")=="guess":
-            session.pop("game_state",None)
             session["users_guess"]=request.form.get("guess")
-            if session["users_guess"]==session["trailer"]:
+            if session["users_guess"]==session["trailers"]:
                 session["is_correct"]=True
                 end=time.time()
                 t=end-session["start_time"]
@@ -107,7 +112,8 @@ def index():
     t=session.get("time",15)
     ordered_data=sorted(data("users.json"),key=lambda x: x["time"],reverse=False)
     return render_template("index.html",data=ordered_data,
-                           trailer=f"static/trailers/{session.get("trailer")+".mp4"}#t=0,{t}")
+                           trailer=f"static/trailers/{session.get("trailers")[0]}#t=0,{t}",
+                           trailer_list=trailer_list)
 @app.route("/login",methods=["GET","POST"])
 def login():
     if request.method=="POST":
