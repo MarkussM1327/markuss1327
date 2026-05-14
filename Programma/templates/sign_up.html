@@ -1,21 +1,30 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
     <title>Sign up</title>
 </head>
 <body>
-    <h1>Create a new account</h1>
-    {% if error %}
-        <h3 style="color: red;">{{ error }}</h3>
+<div class="auth-shell">
+    <header class="auth-header">
+        <h1>Create Account</h1>
+        <p>Join TrailGames and start competing with your best trailer guesses.</p>
+    </header>
+    {% if session.get("signup_error") %}
+    <div class="form-alert">{{ session.get("signup_error") }}</div>
     {% endif %}
-    <form action="{{ url_for('sign_up') }}" method="POST">
-        <label for="username">Create a username (Max of 12 charachters)</label><br>
-        <input type="text" name="username" minlength="1" maxlength="12" required><br><br>
-        <label for="password">Create a password (8 charachters)</label><br>
-        <input type="password" name="password" minlength="8" maxlength="8" required><br><br>
-        <button type="submit">Create Account</button> <a href="{{ url_for('login') }}"><button type="button">Back to Login</button></a>
+    <form action="{{ url_for('sign_up') }}" method="POST" class="auth-form">
+        <label for="username">Username (max 12 characters)</label>
+        <input type="text" name="username" minlength="1" maxlength="12" required>
+        <label for="password">Password (8 characters)</label>
+        <input type="password" name="password" minlength="8" maxlength="8" required>
+        <div class="form-actions">
+            <button type="submit" class="primary-btn">Create Account</button>
+            <a href="{{ url_for('login') }}" class="link-button">Back to Login</a>
+        </div>
     </form>
+</div>
 </body>
 </html>
