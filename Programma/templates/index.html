@@ -1,84 +1,114 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="static/index.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
     <title>TrailGames</title>
 </head>
 <body>
-    {% if session.get("game_state")=="start" %}
-        <div>
-            <video width="50%" height="50%" autoplay muted>
-                <source src="{{ trailer }}" type="video/mp4">
-            </video>
-            {% if session.get("account")!=None %}
-                <span id="username_display">{{ session["account"] }}</span>
-            {% else %}
-                <span id="username_display">Guest</span>
-            {% endif %}
+<div class="page-shell">
+    <header class="topbar">
+        <div class="brand">
+            <h1>TrailGames</h1>
+            <p>Can You Identify These Games From Their Trailers?</p>
         </div>
-    {% else %}
-        <div>
-            <video width="50%" height="50%" autoplay muted>
-                <source src="static/test.mp4#t=0,1" type="video/mp4">
-            </video>
-            {% if session.get("account")!=None %}
-                <span id="username_display">{{ session["account"] }}</span>
-            {% else %}
-                <span id="username_display">Guest</span>
-            {% endif %}
+        <div class="user-panel">
+            <span class="user-chip">Signed in as <strong>{{ session.get("account","Guest") }}</strong></span>
+            <form action="{{ url_for('index') }}" method="POST" class="logout-form">
+                <button type="submit" name="btn" value="logout" class="secondary-btn">Logout</button>
+            </form>
         </div>
-    {% endif %}
-    <form action="{{ url_for('index') }}" method="POST">
-        <button type="submit" name="btn" value="hard" {% if session.get("game_state")=="start" %}disabled{% endif %} >10 sec</button>
-        <button type="submit" name="btn" value="med" {% if session.get("game_state")=="start" %}disabled{% endif %}>15 sec</button>
-        <button type="submit" name="btn" value="ez" {% if session.get("game_state")=="start" %}disabled{% endif %}>20 sec</button>
-        <span><b>Guess {{ 1 }}/5</b></span><br><br>
-    </form>
-    <form action="{{ url_for('index') }}" method="POST">
-        <input id="guess_box" type="text" list="suggestions" placeholder="Enter your guess here" name="guess" required> <button type="submit" name="btn" value="guess">Submit Guess</button>
+    </header>
 
-        <datalist id="suggestions">
-            {% for trailer in trailer_list %}
-            <option value="{{ trailer|replace('.mp4','') }}">
-            {% endfor %}
-        </datalist>
-    </form>
-    {% if session.get("is_correct") %}
-        <dialog open>
-            <h3 style="color: green;">You guessed it right in {{ session["guess_time"] }}</h3>
-            <form hx-post="{{ url_for('index') }}" method="POST">
-                <button type="submit" name="btn" value="close">Close</button>
+    <main class="main-grid">
+        <section class="game-panel">
+            <div class="video-card">
+                {% if session.get("game_state")=="start" %}
+                <video autoplay muted playsinline class="trailer-video">
+                    <source src="{{ trailer }}" type="video/mp4">
+                </video>
+                {% else %}
+                <video autoplay muted playsinline class="trailer-video">
+                    <source src="static/test.mp4#t=0,1" type="video/mp4">
+                </video>
+                {% endif %}
+            </div>
+            <div class="play-panel">
+                <div class="mode-block">
+                    <h2>Choose difficulty</h2>
+                    <form action="{{ url_for('index') }}" method="POST" class="mode-form">
+                        <button type="submit" name="btn" value="hard" class="mode-btn" {% if session.get("game_state")=="start" %}disabled{% endif %}>Hard - 10 sec</button>
+                        <button type="submit" name="btn" value="med" class="mode-btn" {% if session.get("game_state")=="start" %}disabled{% endif %}>Medium - 15 sec</button>
+                        <button type="submit" name="btn" value="ez" class="mode-btn" {% if session.get("game_state")=="start" %}disabled{% endif %}>Easy - 20 sec</button>
+                    </form>
+                    {% if session.get("game_state")=="start" %}
+                    <br><div class="status-pill"><strong>Guess {{ session.get("guess_num",0)+1 }}/5</strong></div>
+                    {% endif %}
+                </div>
+
+                <form action="{{ url_for('index') }}" method="POST" class="guess-form">
+                    <label for="guess_box">Your answer</label>
+                    <div class="field-row">
+                        <input id="guess_box" type="text" list="suggestions" placeholder="Enter Game title" name="guess" required {% if session.get("game_state")==None %}disabled{% endif %}>
+                        <button type="submit" name="btn" value="guess" class="primary-btn" {% if session.get("game_state")==None %}disabled{% endif %}>Submit</button>
+                    </div>
+                    <datalist id="suggestions">
+                        {% for trailer in trailer_list %}
+                        <option value="{{ trailer|replace('.mp4','') }}">
+                        {% endfor %}
+                    </datalist>
+                </form>
+
+                <div class="auth-links">
+                    <a href="{{ url_for('login') }}" class="link-button">Login / Sign up</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="leaderboard-panel">
+            <div class="leaderboard-card">
+                <h2>Leaderboard</h2>
+                <div class="leaderboard-scroll">
+                    <table class="leaderboard-table">
+                        <thead>
+                            <tr>
+                                <th>Pos.</th>
+                                <th>Username</th>
+                                <th>Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for info in data %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td>{{ info.username }}</td>
+                                <td>{{ "%02d"|format(((info.time/1000)/60)|int)|string + ":" + "%02d"|format((info.time1000)|int)|string + ":" + "%03d"|format(((info.time|string)[-3:])|int)|string }}</td>
+                            </tr>
+                            {% else %}
+                            <tr><td colspan="3" class="empty-row">No scores yet. Start a game to appear here.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="results_dialog" class="modal-overlay {% if session.get('show_results',False) %}open{% endif %}">
+        <div class="modal-card">
+            <form action="{{ url_for('index') }}" method="POST" style="position: absolute; top: 18px; right: 18px;">
+                <button type="submit" name="btn" value="close_modal" class="modal-close">&times;</button>
             </form>
-        </dialog>
-    {% elif session.get("wrong_guess") %}
-        <dialog open>
-            <h3 style="color: red;">Wrong guess</h3>
-            <form hx-post="{{ url_for('index') }}" method="POST">
-                <button type="submit" name="btn" value="close">Close</button>
-            </form>
-        </dialog>
-    {% endif %}
-    <br>
-    <a href="{{ url_for('login') }}"><button type="button">Registration</button></a>
-    <div id="leaderboard">
-        <h1>Leaderboards</h1>
-        <table border="1">
-            <tr>
-                <th>Pos.</th>
-                <th>Username</th>
-                <th>Time</th>
-            </tr>
-            {% for info in data %}
-            <tr>
-                <td>{{ loop.index }}</td>
-                <td>{{ info.username }}</td>
-                <td>{{ "%02d"|format(((info.time/1000)/60)|int)|string + ":" + "%02d"|format((info.time/1000)|int)|string + ":" + "%03d"|format(((info.time|string)[-3:])|int)|string }}</td>
-            </tr>
-            {% endfor %}
-        </table>
+            {% if session.get("new_best",False) %}
+            <div class="badge">New Personal Best!</div>
+            {% endif %}
+            <h2>Game results</h2>
+            <p>You guessed <strong>{{ session.get("correct",0) }}/5</strong> correctly.</p>
+            <p>Final time: <strong>{{ session["guess_time"] }}</strong></p>
+            <p>Penalty seconds: <strong>{{ session.get("penalty",0) }}</strong></p>
+        </div>
     </div>
-    {{ session }}
+</div>
 </body>
 </html>
